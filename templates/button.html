@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trekking Club</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e0e4cc;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: 0 auto;
+      background-color: #f5f5dc;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      margin-top: 50px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #355c48;
+    }
+
+    .map {
+      background-size: cover;
+      background-position: center;
+      height: 250px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .map .pin {
+      position: absolute;
+      background-color: #4a7b63;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      flex: 1;
+      padding: 15px;
+      margin: 5px;
+      border-radius: 10px;
+      border: none;
+      background-color: #4a7b63;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #355c48;
+    }
+
+    .button:active {
+      transform: scale(0.98);
+    }
+
+    .button:nth-child(1) {
+      background-color: #ff4d4d;
+    }
+
+    .button:nth-child(1):hover {
+      background-color: #e60000;
+    }
+
+    .difficulty-section {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .difficulty-item {
+      flex: 1;
+    }
+
+    .difficulty-item p {
+      margin: 0;
+      color: #4f4f4f;
+    }
+
+    .icon {
+      font-size: 30px;
+      margin-bottom: 10px;
+      color: #355c48;
+    }
+
+    #chatBox {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .chat-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #chatInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+
+    #chatSend {
+      padding: 10px 15px;
+      border-radius: 8px;
+      background-color: #4a7b63;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #chatSend:hover {
+      background-color: #355c48;
+    }
+
+    #chatResponse {
+      margin-top: 10px;
+      font-style: italic;
+      color: #355c48;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Trekking Club</h2>
+
+    <!-- Map Section -->
+    <div class="map" id="trekMap">
+      <div class="pin">📍</div>
+    </div>
+
+    <!-- Difficulty Section -->
+    <div class="difficulty-section">
+      <div class="difficulty-item">
+        <div class="icon">🏔️</div>
+        <p>Mountain</p>
+        <p>Difficulty: 1.20</p>
+      </div>
+      <div class="difficulty-item">
+        <div class="icon">⛺</div>
+        <p>Camp</p>
+        <p>Time: 2.30</p>
+      </div>
+      <div class="difficulty-item">
+        <div class="icon">🚶‍♂️</div>
+        <p>Hike</p>
+        <p>Distance: 3.90km</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="buttons">
+      <button id="sosBtn" class="button" onclick="clickAction('SOS')">SOS</button>
+      <button class="button" onclick="clickAction('CHAT')">CHAT</button>
+      <button class="button" onclick="clickAction('CALL')">CALL</button>
+      <button class="button" onclick="clickAction('TRACK')">TRACK</button>
+    </div>
+
+    <!-- Chat Box -->
+    <div id="chatBox">
+      <div class="chat-row">
+        <input type="text" id="chatInput" placeholder="Ask something..." />
+        <button id="chatSend" onclick="sendChat()">Send</button>
+      </div>
+      <div id="chatResponse"></div>
+    </div>
+  </div>
+
+  <script>
+    async function clickAction(type) {
+      if (type === 'CHAT') {
+        document.getElementById('chatBox').style.display = 'block';
+        return;
+      }
+
+      if (type === 'CALL') {
+        window.location.href = "tel:+919265884111";
+        return;
+      }
+
+      if (type === 'TRACK') {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            try {
+              const res = await axios.post("/dashboard/action/TRACK?send_sms=true", { lat, lon });
+              if (res.data.status === "success") {
+                alert(
+                  "✅ Live tracking links sent!\n\n" +
+                  "🌍 Google Maps: " + res.data.google_maps_link + "\n" +
+                  "📌 Live Page: " + res.data.live_page_link
+                );
+                window.open(res.data.live_page_link, "_blank");
+              } else {
+                alert("⚠️ " + res.data.error);
+              }
+            } catch (err) {
+              alert("❌ Failed to send tracking link");
+            }
+
+            setInterval(async () => {
+              try {
+                await axios.post("/dashboard/action/TRACK", { lat, lon });
+                console.log("📍 Updated:", lat, lon);
+              } catch (err) {
+                console.error("❌ Update failed", err);
+              }
+            }, 10000);
+          });
+        } else {
+          alert("⚠️ Geolocation not supported in this browser.");
+        }
+        return;
+      }
+
+      // SOS
+      try {
+        const response = await axios.get(`/dashboard/action/${type}`);
+        if (type === 'SOS') {
+          const sosBtn = document.getElementById('sosBtn');
+          if (response.data.status === "success") {
+            alert("✅ SOS sent successfully!");
+          } else {
+            alert("⚠️ Failed: " + (response.data.error || "Unknown error"));
+          }
+          sosBtn.disabled = true;
+          sosBtn.style.backgroundColor = "#999";
+          setTimeout(() => {
+            sosBtn.disabled = false;
+            sosBtn.style.backgroundColor = "#ff4d4d";
+          }, 10000);
+        }
+      } catch (error) {
+        alert("❌ Error sending request");
+      }
+    }
+
+    async function sendChat() {
+      const inputField = document.getElementById("chatInput");
+      const input = inputField.value;
+      const responseDiv = document.getElementById("chatResponse");
+
+      if (!input.trim()) {
+        responseDiv.innerText = "Please type a question.";
+        return;
+      }
+
+      responseDiv.innerText = "Thinking...";
+
+      try {
+        const res = await axios.post('/chat', { message: input });
+        responseDiv.innerHTML = "AI: " + res.data.reply;
+        inputField.value = "";
+      } catch (error) {
+        responseDiv.innerText = "Error contacting AI.";
+      }
+    }
+
+    // Get URL parameter
+    function getUrlParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Set map background based on difficulty
+    const difficultyLevel = getUrlParam('mode')?.toUpperCase(); // Convert to uppercase
+    setDifficulty(difficultyLevel);
+
+    function setDifficulty(level) {
+      const mapElement = document.getElementById('trekMap');
+
+      const images = {
+        EASY: "{{ url_for('static', filename='img/EASY.jpg') }}",
+        MODERATE: "{{ url_for('static', filename='img/MODERATE.jpg') }}",
+        HARD: "{{ url_for('static', filename='img/HARD.jpg') }}"
+      };
+
+      // Default image if invalid or missing
+      const defaultImage = "{{ url_for('static', filename='img/DEFAULT.jpg') }}";
+
+      if (mapElement) {
+        mapElement.style.backgroundImage = `url('${images[level] || defaultImage}')`;
+        mapElement.style.backgroundSize = 'cover';
+        mapElement.style.backgroundPosition = 'center';
+      }
+    }
+  </script>
+</body>
+</html>

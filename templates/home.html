@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trekking App</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #d4d4ab;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background-color: #355c48;
+      width: 900px;
+      height: 600px;
+      border-radius: 30px;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    .header { margin-top: 50px; }
+    .header img { width: 60px; }
+    h1 { font-size: 36px; margin: 20px 0; }
+    p { font-size: 14px; opacity: 0.7; margin: 20px 0; }
+    .btn {
+      width: 120px;
+      display: inline-block;
+      background-color: #f8f8f8;
+      color: #355c48;
+      padding: 15px 40px;
+      margin-top: 20px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover { background-color: #ccc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Mountain Logo">
+      <h1>Welcome to the Trekking App</h1>
+    </div>
+    <p>Welcome to the ultimate trekking solution. Start your adventure with the Trekking App!</p>
+    <a href="{{ url_for('login') }}" class="btn">Get Started</a>
+    <a href="{{ url_for('signup') }}" class="btn">Sign-Up</a>
+  </div>
+</body>
+</html>

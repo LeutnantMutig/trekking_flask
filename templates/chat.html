@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gemini Chatbot</title>
+  <style>
+    #chat-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    #user-input { width: 80%; padding: 8px; }
+    #send-btn { width: 18%; padding: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Chat with Gemini</h2>
+  <div id="chat-box"></div>
+  <input id="user-input" type="text" placeholder="Type your message...">
+  <button id="send-btn">Send</button>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    sendBtn.onclick = async () => {
+      const message = input.value.trim();
+      if (!message) return;
+      chatBox.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+      input.value = '';
+
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      chatBox.innerHTML += `<div><strong>Gemini:</strong> </div><div>${data.reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    };
+  </script>
+</body>
+</html>

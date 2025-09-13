@@ -17,7 +17,7 @@ It includes user authentication, dashboards, chat, and trek details.
 
 ## 📂 Project Structure
 ```
-trekking_flask/
+trekking-club-application/
 │── app.py               # Main Flask application
 │── requirements.txt     # Python dependencies
 │── static/              # Static files (images, css, js)
